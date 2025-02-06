@@ -6,17 +6,20 @@ DEFAULT_START = 250102
 DEFAULT_SKIP = 500
 
 def main():
-    if len(sys.argv) <= 1:
-        print("\tuseage: python3 checker.py <file> <start_number> <skip_limit>")
-        print("\texample: python3 checker.py _chat.txt 250000 500")
-        print("\tfile is optional, defaults to: %s" % DEFAULT_FILE)
-        print("\start number is optional, defaults to: %d" % DEFAULT_START)
-        print("\tskip limit is optional, defaults to: %d" % DEFAULT_SKIP)
-        print("\tstart number might fail if it was mentioned before it was supposed to arrive, do not choose a cool number.")
-        sys.exit(0)
+    print("running %s", sys.argv[0])
+    print("\tuseage: python3 checker.py <file> <start_number> <skip_limit>")
+    print("\texample: python3 checker.py _chat.txt 250241 500")
+    print("\tfile is optional, defaults to: %s" % DEFAULT_FILE)
+    print("\start number is optional, defaults to: %d" % DEFAULT_START)
+    print("\tskip limit is optional, defaults to: %d" % DEFAULT_SKIP)
+    print("\tstart number might fail if it was mentioned before it was supposed to arrive, do not choose a cool number.")
+    print("\tcan only give up arguments from the end\n")
         
-
-    messages = get_messages(sys.argv[1])
+    file = DEFAULT_FILE
+    if sys.argv > 1:
+        file = sys.argv[1]
+        
+    messages = get_messages(file)
     
     next_number = DEFAULT_START
     if len(sys.argv) > 2:
