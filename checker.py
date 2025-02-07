@@ -16,7 +16,7 @@ def main():
     print("\tcan only give up arguments from the end\n")
         
     file = DEFAULT_FILE
-    if sys.argv > 1:
+    if len(sys.argv) > 1:
         file = sys.argv[1]
         
     messages = get_messages(file)

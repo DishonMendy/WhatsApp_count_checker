@@ -49,10 +49,11 @@ def main():
             
     countsOfPeople = sorted(countsOfPeople.items(), key=lambda kv: kv[1])
     countsOfPeople.reverse()
-    
+    rank = 1
     for (author, count) in countsOfPeople:
         if amount > 0:
-            print("%s: %d" % (author, count))
+            print("%d%s: %d" % (rank, author, count))
+            rank += 1
             amount -= 1
         else:
             break
