@@ -52,7 +52,7 @@ def main():
     rank = 1
     for (author, count) in countsOfPeople:
         if amount > 0:
-            print("%d%s: %d" % (rank, author, count))
+            print("%d %s: %d" % (rank, author, count))
             rank += 1
             amount -= 1
         else:
