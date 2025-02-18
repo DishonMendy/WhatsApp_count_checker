@@ -33,25 +33,43 @@ def main():
     max_date = first_msg["timestamp"]
     max_msg_count = 0
     
-    # temp_sec = messages["chats"][3000]
-    
-    # out = first_msg["timestamp"] < temp_sec["timestamp"]
-    # print(out)
+    who_sent_the_most = (first_msg["author"], 1)
     
     if start_date == "0":
         print("Start checking from date: %s" % messages["chats"][0]["timestamp"])
+    countsOfPeople = {}
     for message in messages["chats"]:
+        author = message["author"]
         date = message["timestamp"]
+        if start_date != "0":
+            if (date.year - 2000) < int(start_date[-2:]) or (date.month) < int(start_date[2:4]) or (date.day) < int(start_date[:2]):
+                continue
+            else:
+                print("Start checking from date: %s" % date)
+                start_date = "0"
+        
+        # if the date has changed
         if current_date.year < date.year or current_date.month < date.month or current_date.day < date.day:
+            # if the day that just passed was the day with the most messages
             if max_msg_count <= msg_count:
                 max_first_msg = first_msg
                 max_last_msg = prev_message
                 max_date = current_date
                 max_msg_count = msg_count
                 
+                countsOfPeople = sorted(countsOfPeople.items(), key=lambda kv: kv[1])
+                countsOfPeople.reverse()
+                who_sent_the_most = countsOfPeople[0]
+                
             msg_count = 0
             current_date = date
             first_msg = message
+            countsOfPeople = {}
+            
+        if author not in countsOfPeople:
+            countsOfPeople[author] = 1
+        else:
+            countsOfPeople[author] += 1
             
         msg_count += 1
         prev_message = message
@@ -62,8 +80,8 @@ def main():
     print(max_first_msg["author"])
     print("Last message of the day: \"%s\"" % max_last_msg["message"])
     print(max_last_msg["author"])
-    
-    print("\n--last message tested date: %s" % prev_message["timestamp"])
+    print(f"Who sent the most messages that day? {who_sent_the_most[0]} with {who_sent_the_most[1]} messages")
+    print("\nEnd checking at date: %s" % prev_message["timestamp"])
     
 if __name__ == "__main__":
     main()
