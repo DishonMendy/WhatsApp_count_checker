@@ -10,11 +10,11 @@
 from datetime import datetime
 import re
 
-REGEX_DATE = """^(\u200e){0,1}[0-9\/]+(, )[0-9:]+"""
-REGEX_CONTACT = """^(\u200e){0,1}[0-9\/]+(, )[0-9:]+(.+?)(: )"""
-REGEX_MESSAGE = """^(\u200e){0,1}[0-9\/]+(, )[0-9:]+(.+?)(: )(.+)"""
+REGEX_DATE = """^(\u200e){0,1}\[[0-9\/]+(, )[0-9:]+\]"""
+REGEX_CONTACT = """^(\u200e){0,1}\[[0-9\/]+(, )[0-9:]+\](.+?)(: )"""
+REGEX_MESSAGE = """^(\u200e){0,1}\[[0-9\/]+(, )[0-9:]+\](.)+(: )(.+)"""
 
-DATE_FORMAT = '%d/%m/%Y, %H:%M'
+DATE_FORMAT = '[%d/%m/%Y, %H:%M:%S]'
 
 def __parse_timestamp(s, date_format):
     return datetime.strptime(s, date_format)
@@ -49,21 +49,9 @@ def get_messages(chat_export_path, date_format=DATE_FORMAT):
         if m.startswith("\u200e"):
             m = m[1:]
 
-        original_timestamp_match = re.search(REGEX_DATE, m)
-        if not original_timestamp_match:
-            # If no valid date found, treat as continuation
-            if messages:
-                messages[-1]["message"] += "\n" + m
-            continue
-        original_timestamp = original_timestamp_match.group(0)
+        original_timestamp = re.search(REGEX_DATE, m).group(0)
         data["original_date"] = original_timestamp
-        try:
-            data["timestamp"] = __parse_timestamp(original_timestamp, date_format)
-        except Exception:
-            # If parsing fails, treat as descriptive or skip
-            descriptive_messages.append(m)
-            continue
-
+        data["timestamp"] = __parse_timestamp(original_timestamp, date_format)
         contact_original = re.search(REGEX_CONTACT, m)
         message_original = re.search(REGEX_MESSAGE, m)
         if not message_original:

@@ -30,11 +30,13 @@ def main():
     messages = get_messages(file)
     
     countsOfPeople = {}
+    perDayCounts = {}
     if start_date == "0":
         print("Start checking from date: %s" % messages["chats"][0]["timestamp"])
     for message in messages["chats"]:
         author = message["author"]
         date = message["timestamp"]
+        day_str = date.strftime("%Y-%m-%d")
         if start_date != "0":
             if (date.year - 2000) < int(start_date[-2:]) or (date.month) < int(start_date[2:4]) or (date.day) < int(start_date[:2]):
                 continue
@@ -44,15 +46,26 @@ def main():
 
         if author not in countsOfPeople:
             countsOfPeople[author] = 1
+            perDayCounts[author] = {}
         else:
             countsOfPeople[author] += 1
-            
+        if day_str not in perDayCounts[author]:
+            perDayCounts[author][day_str] = 1
+        else:
+            perDayCounts[author][day_str] += 1
+
     countsOfPeople = sorted(countsOfPeople.items(), key=lambda kv: kv[1])
     countsOfPeople.reverse()
     rank = 1
     for (author, count) in countsOfPeople:
         if amount > 0:
-            print("%d%s: %d" % (rank, author, count))
+            # Find the day with the most messages for this author
+            day_counts = perDayCounts[author]
+            if day_counts:
+                max_day, max_count = max(day_counts.items(), key=lambda kv: kv[1])
+                print("%d %s: %d (max %d on %s)" % (rank, author, count, max_count, max_day))
+            else:
+                print("%d %s: %d" % (rank, author, count))
             rank += 1
             amount -= 1
         else:
