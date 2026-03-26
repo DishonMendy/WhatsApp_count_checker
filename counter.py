@@ -1,8 +1,15 @@
 import sys
+from datetime import datetime
 from parser import get_messages
 
 DEFAULT_FILE = "_chat.txt"
 DEFAULT_AMOUNT = 20
+
+
+def format_message_line(message):
+    # Keep multiline messages readable in a single console line.
+    text = message["message"].replace("\n", " ").strip()
+    return "%s - %s: %s" % (message["timestamp"], message["author"], text)
 
 def main():
     print("running %s", sys.argv[0])
@@ -28,21 +35,32 @@ def main():
         start_date = sys.argv[3]
     
     messages = get_messages(file)
+    chats = messages["chats"]
+
+    if not chats:
+        print("No messages found in file: %s" % file)
+        return
+
+    filtered_chats = chats
+    if start_date != "0":
+        cutoff = datetime.strptime(start_date, "%d%m%y")
+        filtered_chats = [m for m in chats if m["timestamp"] >= cutoff]
+
+    if not filtered_chats:
+        print("No messages found after start date filter")
+        return
+
+    print("Start date: %s" % filtered_chats[0]["timestamp"])
+    print("End date: %s" % filtered_chats[-1]["timestamp"])
+    print("First message: %s" % format_message_line(filtered_chats[0]))
+    print("Last message: %s" % format_message_line(filtered_chats[-1]))
     
     countsOfPeople = {}
     perDayCounts = {}
-    if start_date == "0":
-        print("Start checking from date: %s" % messages["chats"][0]["timestamp"])
-    for message in messages["chats"]:
+    for message in filtered_chats:
         author = message["author"]
         date = message["timestamp"]
         day_str = date.strftime("%Y-%m-%d")
-        if start_date != "0":
-            if (date.year - 2000) < int(start_date[-2:]) or (date.month) < int(start_date[2:4]) or (date.day) < int(start_date[:2]):
-                continue
-            else:
-                print("Start checking from date: %s" % date)
-                start_date = "0"
 
         if author not in countsOfPeople:
             countsOfPeople[author] = 1
